@@ -5,10 +5,28 @@
     gap: 32px;
 }
 
+.kanban-header {
+    font-size: 18px;
+    border: 1px solid lightgray;
+    padding: 5px;
+    border-radius: 5px;
+    position: relative;
+    width: 4%;
+    margin: 20px;
+}
+
 .controls {
     display: flex;
     align-items: center;
     margin: 10px;
+    background-color: #ececec;
+    border-radius: 5px;
+    padding: 10px;
+    position: absolute;
+    width: 10%;
+    border: 2px solid #CCCCCC;
+    top: 14%;
+    left: 10px;
 }
 
 .controls label {

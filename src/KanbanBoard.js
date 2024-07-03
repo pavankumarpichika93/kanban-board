@@ -3,8 +3,9 @@ import axios from 'axios';
 import Column from './Column';
 import './styles.css';
 
-const Board = () => {
+const KanbanBoard = () => {
     const [tickets, setTickets] = useState([]);
+    const [controls, setControls] = useState(false);
     const [grouping, setGrouping] = useState('status');
     const [ordering, setOrdering] = useState('priority');
 
@@ -12,7 +13,7 @@ const Board = () => {
 
         const fetchData = async () => {
             const response = await axios.get("https://api.quicksell.co/v1/internal/frontend-assignment");
-            addUsernameToTickets(response.data.tickets, response.data.users)
+            updateTicketArray(response.data.tickets, response.data.users)
         }
         fetchData();
 
@@ -27,7 +28,7 @@ const Board = () => {
         localStorage.setItem('ordering', ordering);
     }, [grouping, ordering]);
 
-    const addUsernameToTickets = (tickets, users) => {
+    const updateTicketArray = (tickets, users) => {
         const userMap = users.reduce((acc, user) => {
             acc[user.id] = user.name;
             return acc;
@@ -41,7 +42,7 @@ const Board = () => {
         setTickets(updatedArray);
     };
 
-    const groupByStatus = (tickets) => {
+    const handleGroupByStatus = (tickets) => {
         const groups = tickets.reduce((acc, ticket) => {
             if (!acc[ticket.status]) acc[ticket.status] = [];
             acc[ticket.status].push(ticket);
@@ -50,7 +51,7 @@ const Board = () => {
         return groups;
     };
 
-    const groupByUser = (tickets) => {
+    const handleGroupByUser = (tickets) => {
         const groups = tickets.reduce((acc, ticket) => {
             if (!acc[ticket.username]) acc[ticket.username] = [];
             acc[ticket.username].push(ticket);
@@ -59,7 +60,7 @@ const Board = () => {
         return groups;
     };
 
-    const groupByPriority = (tickets) => {
+    const handleGroupByPriority = (tickets) => {
         const groups = tickets.reduce((acc, ticket) => {
             if (!acc[ticket.priority]) acc[ticket.priority] = [];
             acc[ticket.priority].push(ticket);
@@ -76,9 +77,9 @@ const Board = () => {
         return tickets.sort((a, b) => a.title.localeCompare(b.title));
     };
 
-    const groupedTickets = grouping === 'status' ? groupByStatus(tickets) :
-        grouping === 'user' ? groupByUser(tickets) :
-            groupByPriority(tickets);
+    const groupedTickets = grouping === 'status' ? handleGroupByStatus(tickets) :
+        grouping === 'user' ? handleGroupByUser(tickets) :
+            handleGroupByPriority(tickets);
 
     Object.keys(groupedTickets).forEach(group => {
         groupedTickets[group] = ordering === 'priority' ? sortByPriority(groupedTickets[group]) : sortByTitle(groupedTickets[group]);
@@ -87,17 +88,21 @@ const Board = () => {
     const handleGroupingChange = (event) => {
         setGrouping(event.target.value);
     };
+    const showControls = () => {
+        setControls(!controls);
+    }
 
     return (
         <>
-            <div className="controls">
-                <label htmlFor="grouping">Display: </label>
+            <div className="kanban-header" onClick={showControls}>Display</div>
+            {controls && <div className="controls">
+                <label htmlFor="grouping">Group By: </label>
                 <select id="grouping" value={grouping} onChange={handleGroupingChange}>
                     <option value="status">Status</option>
                     <option value="user">User</option>
                     <option value="priority">Priority</option>
                 </select>
-            </div>
+            </div>}
             <div className="board">
 
                 {Object.keys(groupedTickets).map(group => (
@@ -108,4 +113,4 @@ const Board = () => {
     );
 };
 
-export default Board;
+export default KanbanBoard;
